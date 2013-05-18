@@ -2766,7 +2766,7 @@ namespace Questor.Modules.Caching
                                                   .Where(t => t.IsSentry == Settings.Instance.KillSentries)
                                                   .OrderByDescending(t => !t.IsFrigate || !t.IsNPCFrigate)
                                                   .ThenByDescending(t => !t.IsTooCloseTooFastTooSmallToHit)
-                                                  .ThenBy(t => t.IsEntityWeShouldKeepShooting)
+                                                  .ThenByDescending(t => t.IsEntityWeShouldKeepShooting)
                                                   .ThenByDescending(t => t.IsTargetedBy)                                    // if something does not target us it's not too interesting
                                                   .ThenByDescending(t => t.IsWarpScramblingMe)                              // WarpScram over Webs over any other EWAR
                                                   .ThenByDescending(t => t.IsWebbingMe)
@@ -2777,7 +2777,6 @@ namespace Questor.Modules.Caching
                                                   .ThenByDescending(t => t.Id == currentWeaponId)                           // Lets keep shooting
                                                   .ThenByDescending(t => t.IsInOptimalRange)
                                                   .ThenBy(t => t.Distance)
-                                                  .ThenBy(t => t.Health)
                                                   .FirstOrDefault();
 
             return targets;
@@ -2803,7 +2802,6 @@ namespace Questor.Modules.Caching
                                                           .ThenByDescending(t => t.Id == currentDroneTargetId)                      // Keep current target
                                                           .ThenByDescending(t => t.IsTooCloseTooFastTooSmallToHit)
                                                           .ThenBy(t => t.Distance)
-                                                          .ThenBy(t => t.Health)
                                                           .FirstOrDefault();
 
             return targets;
