@@ -2769,10 +2769,11 @@ namespace Questor.Modules.Caching
                                                   .ThenByDescending(t => t.IsTargetedBy)                                    // if something does not target us it's not too interesting
                                                   .ThenByDescending(t => t.IsWarpScramblingMe)                              // WarpScram over Webs over any other EWAR
                                                   .ThenByDescending(t => t.IsWebbingMe)
-                                                  .ThenByDescending(t => t.IsActiveEwar())
-                                                  .ThenByDescending(t => t.IsTarget)                                        // We like targets we alrdy targeted
+                                                  .ThenByDescending(t => t.IsActiveEwar())                                  // Will return True if the target ever eward us (look at caching changes for ewar)
+                                                  .ThenByDescending(t => t.IsTarget || t.IsTargeting)                       /* We like targets we alrdy targeted or targeting atm, priorizing targets 
+                                                                                                                             * over currently targeting entities will make us switch targets more often what we dont want
+                                                                                                                             * and our weapons will be on cooldown when we can finaly hit that scrambler for example */
                                                   .ThenByDescending(t => t.Id == currentWeaponId)                           // Lets keep shooting
-                                                  .ThenByDescending(t => t.IsTargeting)                                     // if there was no good target yet, we like the targets we are targeting atm most
                                                   .ThenByDescending(t => t.IsInOptimalRange)
                                                   .ThenBy(t => t.Distance)
                                                   .ThenBy(t => t.Health)
@@ -2790,15 +2791,16 @@ namespace Questor.Modules.Caching
                                                           .Where(t => !Entities.Any(e => e.Id == t.Id && !e.IsValid))
                                                           .Where(t => t.IsSentry == Settings.Instance.KillSentries)
                                                           .Where(t => t.Distance < Settings.Instance.DroneControlRange)
-                                                          .OrderByDescending(t => t.IsFrigate == Settings.Instance.DronesKillHighValueTargets || t.IsNPCFrigate == Settings.Instance.DronesKillHighValueTargets)
+                                                          .OrderByDescending(t => (!t.IsFrigate || !t.IsNPCFrigate) == Settings.Instance.DronesKillHighValueTargets)
                                                           .ThenByDescending(t => t.IsTooCloseTooFastTooSmallToHit)
                                                           .ThenByDescending(t => t.IsWarpScramblingMe)                              // WarpScram over Webs over any other EWAR
                                                           .ThenByDescending(t => t.IsWebbingMe)
-                                                          .ThenByDescending(t => t.IsActiveEwar())
+                                                          .ThenByDescending(t => t.IsActiveEwar())                                  // Will return True if the target ever eward us (look at caching changes for ewar)
                                                           .ThenByDescending(t => t.IsTargetedBy)                                    // if something does not target us it's not too interesting
-                                                          .ThenByDescending(t => t.IsTarget)                                        // We like targets we alrdy targeted
+                                                          .ThenByDescending(t => t.IsTarget || t.IsTargeting)                       /* We like targets we alrdy targeted or targeting atm, priorizing targets 
+                                                                                                                                     * over currently targeting entities will make us switch targets more often what we dont want
+                                                                                                                                     * and our weapons will be on cooldown when we can finaly hit that scrambler for example */
                                                           .ThenByDescending(t => t.Id == currentDroneTargetId)                      // Keep current target
-                                                          .ThenByDescending(t => t.IsTargeting)                                     // if there was no good target yet, we like the targets we are targeting atm most
                                                           .ThenBy(t => t.Distance)
                                                           .ThenBy(t => t.Health)
                                                           .FirstOrDefault();
