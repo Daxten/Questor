@@ -2792,7 +2792,7 @@ namespace Questor.Modules.Caching
                                                           .Where(t => !Entities.Any(e => e.Id == t.Id && !e.IsValid))
                                                           .Where(t => t.IsSentry == Settings.Instance.KillSentries)
                                                           .Where(t => t.Distance < Settings.Instance.DroneControlRange)
-                                                          .OrderByDescending(t => (!t.IsFrigate || !t.IsNPCFrigate) == Settings.Instance.DronesKillHighValueTargets)
+                                                          .OrderByDescending(t => (t.IsFrigate || t.IsNPCFrigate) == !Settings.Instance.DronesKillHighValueTargets)
                                                           .ThenByDescending(t => t.IsWarpScramblingMe)                              // WarpScram over Webs over any other EWAR
                                                           .ThenByDescending(t => t.IsWebbingMe)
                                                           .ThenByDescending(t => t.IsActiveEwar())                                  // Will return True if the target ever eward us (look at caching changes for ewar)
