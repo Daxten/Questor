@@ -291,6 +291,26 @@ namespace Questor.Modules.Caching
             }
         }
 
+        public bool IsEntityWeShouldKeepShooting
+        {
+            get
+            {
+                if (_directEntity != null)
+                {
+                    if ((_directEntity.IsTarget)
+                      && _directEntity.ArmorPct * 100 < Settings.Instance.DoNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage
+                      && !Cache.Instance.IgnoreTargets.Contains(_directEntity.Name.Trim()))
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                return false;
+            }
+        }
+
         public bool IsReadyToNavigateToward
         {
             get
