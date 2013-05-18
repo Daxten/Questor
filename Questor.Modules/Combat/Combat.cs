@@ -1012,7 +1012,7 @@ namespace Questor.Modules.Combat
             //
             if (Cache.Instance.PreferredPrimaryWeaponTarget != null)
             {
-                if (!Cache.Instance.PreferredPrimaryWeaponTarget.IsLargeCollidable && !Cache.Instance.potentialCombatTargets.Any())
+                if (!Cache.Instance.Entities.Any(t => t.Id == Cache.Instance.PreferredPrimaryWeaponTarget.Id))
                 {
                     Cache.Instance.PreferredPrimaryWeaponTarget = null;
                     return;
@@ -1049,9 +1049,9 @@ namespace Questor.Modules.Combat
             // Lets deal with our preferred targets next (in other words what Q is actively trying to shoot or engage drones on)
             //
 
-            if (Cache.Instance.PreferredDroneTarget != null && (Cache.Instance.UseDrones != null && Cache.Instance.UseDrones)) 
+            if (Cache.Instance.PreferredDroneTarget != null)
             {
-                if (!Cache.Instance.PreferredDroneTarget.IsLargeCollidable && !Cache.Instance.potentialCombatTargets.Any())
+                if (!Cache.Instance.Entities.Any(e => e.Id == Cache.Instance.PreferredDroneTarget.Id) || (Settings.Instance.UseDrones != null && !Settings.Instance.UseDrones))
                 {
                     Cache.Instance.PreferredDroneTarget = null;
                     return;
@@ -1081,111 +1081,6 @@ namespace Questor.Modules.Combat
                 }
             }
             #endregion
- 
-            #region Priority Target Handling
-            //
-            // Now lets deal with the priority targets
-            //
-            if (Cache.Instance.PrimaryWeaponPriorityTargets.Any())
-            {
-                int PrimaryWeaponsPriorityTargetUnTargeted = Cache.Instance.PrimaryWeaponPriorityTargets.Count() - targets.Count(t => Cache.Instance.PrimaryWeaponPriorityTargets.Contains(t));
-
-                if (PrimaryWeaponsPriorityTargetUnTargeted > 0)
-                {
-                    //
-                    // unlock a lower priority entity if needed
-                    //
-                    if (!UnlockHighValueTarget("Combat.TargetCombatants", "PrimaryWeaponPriorityTargets")) return;
-
-                    IEnumerable<EntityCache> _primaryWeaponPriority = Cache.Instance.PrimaryWeaponPriorityTargets.Where(t => t.IsTargetWeCanShootButHaveNotYetTargeted)
-                                                                                                                     .OrderByDescending(c => c.IsInOptimalRange)
-                                                                                                                     .ThenBy(c => c.Distance);
-
-                    if (_primaryWeaponPriority.Any())
-                    {
-                        if (Settings.Instance.DebugTargetCombatants) Logging.Log("Combat.TargetCombatants", "DebugTargetCombatants: [" + _primaryWeaponPriority.Count() + "] primaryWeaponPriority targets", Logging.Debug);
-
-                        foreach (EntityCache primaryWeaponPriorityEntity in _primaryWeaponPriority)
-                        {
-                            // Have we reached the limit of high value targets?
-                            if (highValueTargetsTargeted.Count() >= maxHighValueTarget)
-                            {
-                                break;
-                            }
-
-                            if (primaryWeaponPriorityEntity.Distance < Cache.Instance.MaxRange
-                                && !primaryWeaponPriorityEntity.IsTarget
-                                && !primaryWeaponPriorityEntity.IsTargeting
-                                && primaryWeaponPriorityEntity.Distance < Cache.Instance.LowValueTargetsHaveToBeWithinDistance
-                                && primaryWeaponPriorityEntity.LockTarget("TargetCombatants.PrimaryWeaponPriorityEntity"))
-                            {
-                                Logging.Log("Combat", "Targeting primary weapon priority target [" + primaryWeaponPriorityEntity.Name + "][ID: " + Cache.Instance.MaskedID(primaryWeaponPriorityEntity.Id) + "][" + Math.Round(primaryWeaponPriorityEntity.Distance / 1000, 0) + "k away]", Logging.Teal);
-                                Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
-                                return;
-                            }
-
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        if (Settings.Instance.DebugTargetCombatants) Logging.Log("Combat.TargetCombatants", "DebugTargetCombatants: 0 primaryWeaponPriority targets", Logging.Debug);
-                    }
-                }
-            }
-            #endregion
-
-            #region Drone Priority Target Handling
-            //
-            // Now lets deal with the priority targets
-            //
-            if (Cache.Instance.DronePriorityTargets.Any())
-            {
-                int DronesPriorityTargetUnTargeted = Cache.Instance.DronePriorityTargets.Count() - targets.Count(t => Cache.Instance.DronePriorityTargets.Contains(t));
-
-                if (DronesPriorityTargetUnTargeted > 0)
-                {
-                    if (!UnlockLowValueTarget("Combat.TargetCombatants", "DronePriorityTargets")) return;
-
-                    IEnumerable<EntityCache> _dronePriorityTargets = Cache.Instance.DronePriorityTargets.Where(t => t.IsTargetWeCanShootButHaveNotYetTargeted)
-                                                                                                                         .OrderByDescending(c => c.IsInOptimalRange)
-                                                                                                                         .ThenBy(c => c.Distance);
-
-                    if (_dronePriorityTargets.Any())
-                    {
-                        if (Settings.Instance.DebugTargetCombatants) Logging.Log("Combat.TargetCombatants", "DebugTargetCombatants: [" + _dronePriorityTargets.Count() + "] dronePriority targets", Logging.Debug);
-
-                        foreach (EntityCache dronePriorityEntity in _dronePriorityTargets)
-                        {
-                            // Have we reached the limit of high value targets?
-                            if (lowValueTargetsTargeted.Count() >= maxLowValueTarget)
-                            {
-                                break;
-                            }
-
-                            if (dronePriorityEntity.Distance < Cache.Instance.MaxRange
-                                && !dronePriorityEntity.IsTarget
-                                && !dronePriorityEntity.IsTargeting
-                                && dronePriorityEntity.Distance < Cache.Instance.LowValueTargetsHaveToBeWithinDistance
-                                && dronePriorityEntity.LockTarget("TargetCombatants.PrimaryWeaponPriorityEntity"))
-                            {
-                                Logging.Log("Combat", "Targeting primary weapon priority target [" + dronePriorityEntity.Name + "][ID: " + Cache.Instance.MaskedID(dronePriorityEntity.Id) + "][" + Math.Round(dronePriorityEntity.Distance / 1000, 0) + "k away]", Logging.Teal);
-                                Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
-                                return;
-                            }
-
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        if (Settings.Instance.DebugTargetCombatants) Logging.Log("Combat.TargetCombatants", "DebugTargetCombatants: 0 primaryWeaponPriority targets", Logging.Debug);
-                    }
-                }
-            }
-
-            
-            #endregion
            
             #region Do we have enough targets?
             //
@@ -1210,12 +1105,12 @@ namespace Questor.Modules.Combat
 
 
             List<EntityCache> highValueTargetingMe;
-            highValueTargetingMe = TargetingMe.Where(t => (t.TargetValue.HasValue)
+            highValueTargetingMe = TargetingMe.Where(t => (t.TargetValue.HasValue && !Cache.Instance.IgnoreTargets.Contains(t.Name))
                                                 && (!t.IsNPCFrigate && !t.IsFrigate))
                                                .OrderBy(t => t.Nearest5kDistance).ToList();
 
             List<EntityCache> lowValueTargetingMe;
-            lowValueTargetingMe = TargetingMe.Where(t => (t.IsNPCFrigate || t.IsFrigate))
+            lowValueTargetingMe = TargetingMe.Where(t => (t.IsNPCFrigate || t.IsFrigate) && !Cache.Instance.IgnoreTargets.Contains(t.Name))
                                              .OrderBy(t => t.Nearest5kDistance).ToList();
 
             if (Settings.Instance.DebugTargetCombatants) Logging.Log("Combat.TargetCombatants", "TargetingMe [" + TargetingMe.Count() + "] lowValueTargetingMe [" + lowValueTargetingMe.Count() + "] highValueTargetingMe [" + highValueTargetingMe.Count() + "]", Logging.Debug);
@@ -1309,7 +1204,7 @@ namespace Questor.Modules.Combat
             //
             if (!highValueTargetsTargeted.Any() && !lowValueTargetsTargeted.Any() && !highValueTargetingMe.Any() && !lowValueTargetingMe.Any())
             {
-                NotYetTargetingMe = Cache.Instance.Entities.Where(t => t.IsNotYetTargetingMeAndNotYetTargeted)
+                NotYetTargetingMe = Cache.Instance.Entities.Where(t => t.IsNotYetTargetingMeAndNotYetTargeted && !Cache.Instance.IgnoreTargets.Contains(t.Name))
                                                                 .OrderBy(t => t.Nearest5kDistance)
                                                                 .ToList();
 

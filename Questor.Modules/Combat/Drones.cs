@@ -89,8 +89,8 @@ namespace Questor.Modules.Combat
             TargetingCache.CurrentDronesTarget = Cache.Instance.EntityById(_lastTarget);
             
             // Return best possible low value target
-            if (Cache.Instance.UseDrones != null && Cache.Instance.UseDrones)
-                Cache.Instance.GetBestDroneTarget(Settings.Instance.DroneControlRange, !Cache.Instance.DronesKillHighValueTargets, "Drones", Cache.Instance.potentialCombatTargets.ToList());
+            //if (Cache.Instance.UseDrones != null && Cache.Instance.UseDrones)
+            //    Cache.Instance.GetBestDroneTarget(Settings.Instance.DroneControlRange, !Cache.Instance.DronesKillHighValueTargets, "Drones", Cache.Instance.potentialCombatTargets.ToList());
 
             if (Cache.Instance.PreferredDroneTarget != null && Cache.Instance.PreferredDroneTarget.Distance < Settings.Instance.DroneControlRange)
             {
@@ -144,8 +144,11 @@ namespace Questor.Modules.Combat
                 }
                 else // Make the target active
                 {
-                    target.MakeActiveTarget();
-                    Logging.Log("Drones", "[" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away] is now the target for drones", Logging.Magenta);
+                    if (target.IsTarget)
+                    {
+                        target.MakeActiveTarget();
+                        Logging.Log("Drones", "[" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away] is now the target for drones", Logging.Magenta);
+                    }
                 }
 
                 return;
