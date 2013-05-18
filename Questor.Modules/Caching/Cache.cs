@@ -2758,7 +2758,7 @@ namespace Questor.Modules.Caching
 
         public IEnumerable<EntityCache> GetBestWeaponTargets(double distance, IEnumerable<EntityCache> _potentialTargets = null)
         {
-            IEnumerable<EntityCache> targets = _potentialTargets != null ? _potentialTargets : combatTargets;
+            IEnumerable<EntityCache> targets = _potentialTargets != null ? _potentialTargets : potentialCombatTargets;
             long currentWeaponId = Cache.Instance.CurrentWeaponTarget() != null ? Cache.Instance.CurrentWeaponTarget().Id : -1;
 
             targets.Where(t => !Cache.Instance.IgnoreTargets.Contains(t.Name) && t.Distance < distance)
@@ -2785,7 +2785,7 @@ namespace Questor.Modules.Caching
 
         public IEnumerable<EntityCache> GetBestDroneTargets(double distance, IEnumerable<EntityCache> _potentialTargets = null)
         {
-            IEnumerable<EntityCache> targets = _potentialTargets != null ? _potentialTargets : combatTargets;
+            IEnumerable<EntityCache> targets = _potentialTargets != null ? _potentialTargets : potentialCombatTargets;
             long currentDroneTargetId = TargetingCache.CurrentDronesTarget != null ? TargetingCache.CurrentDronesTarget.Id : -1;
 
             targets.Where(t => !Cache.Instance.IgnoreTargets.Contains(t.Name) && t.Distance < distance)
@@ -2820,26 +2820,21 @@ namespace Questor.Modules.Caching
         public bool GetBestTarget(double distance, bool lowValueFirst, string callingroutine, IEnumerable<EntityCache> _potentialTargets = null)
         {
             if (Settings.Instance.DebugGetBestTarget) Logging.Log(callingroutine + " Debug: GetBestTarget", "Attempting to get Best Target", Logging.Teal);
-            if ((string.Equals(callingroutine, "Drones", StringComparison.OrdinalIgnoreCase)))
-            {
-                Logging.Log(callingroutine + " Debug: GetBestTarget", "We should have called GetBestDroneTarget here instead of GetBestTarget", Logging.Debug);
-                return false;
-            }
 
             if (DateTime.UtcNow < NextGetBestCombatTarget)
             {
-                if (Settings.Instance.DebugGetBestTarget) Logging.Log(callingroutine + " Debug: GetBestTarget", "Cant GetBest yet....Too Soon!", Logging.Teal);
-                return false;
+                return (PreferredPrimaryWeaponTarget != null || PreferredDroneTarget != null);
             }
 
             NextGetBestCombatTarget = DateTime.UtcNow.AddMilliseconds(800);
 
+            // Weapon Target
             PreferredPrimaryWeaponTarget = GetBestWeaponTargets(distance, _potentialTargets).FirstOrDefault();
 
+            // Drone Target
             if (Settings.Instance.UseDrones)
             {
                 long currentDroneTargetId = TargetingCache.CurrentDronesTarget != null ? TargetingCache.CurrentDronesTarget.Id : -1;
-
                 PreferredDroneTarget = GetBestDroneTargets(distance, _potentialTargets).FirstOrDefault();
             }
 
@@ -2892,8 +2887,7 @@ namespace Questor.Modules.Caching
 
             NextGetBestCombatTarget = DateTime.UtcNow;
 
-            if (PreferredPrimaryWeaponTarget != null || PreferredDroneTarget != null) return true;
-            return false;
+            return (PreferredPrimaryWeaponTarget != null || PreferredDroneTarget != null);
         }
 
         private void EWarEffectsOnMe()
