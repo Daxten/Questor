@@ -2766,7 +2766,7 @@ namespace Questor.Modules.Caching
                                                   .Where(t => t.IsSentry == Settings.Instance.KillSentries)
                                                   .OrderByDescending(t => !t.IsFrigate || !t.IsNPCFrigate)
                                                   .ThenByDescending(t => !t.IsTooCloseTooFastTooSmallToHit)
-                                                  .ThenBy(t => t.Id == currentWeaponId && t.ArmorPct * 100 < Settings.Instance.DoNotSwitchTargetsIfTargetHasMoreThanThisArmorDamagePercentage)
+                                                  .ThenBy(t => t.IsEntityWeShouldKeepShooting)
                                                   .ThenByDescending(t => t.IsTargetedBy)                                    // if something does not target us it's not too interesting
                                                   .ThenByDescending(t => t.IsWarpScramblingMe)                              // WarpScram over Webs over any other EWAR
                                                   .ThenByDescending(t => t.IsWebbingMe)
