@@ -2792,7 +2792,6 @@ namespace Questor.Modules.Caching
                                                           .Where(t => t.IsSentry == Settings.Instance.KillSentries)
                                                           .Where(t => t.Distance < Settings.Instance.DroneControlRange)
                                                           .OrderByDescending(t => (!t.IsFrigate || !t.IsNPCFrigate) == Settings.Instance.DronesKillHighValueTargets)
-                                                          .ThenByDescending(t => t.IsTooCloseTooFastTooSmallToHit)
                                                           .ThenByDescending(t => t.IsWarpScramblingMe)                              // WarpScram over Webs over any other EWAR
                                                           .ThenByDescending(t => t.IsWebbingMe)
                                                           .ThenByDescending(t => t.IsActiveEwar())                                  // Will return True if the target ever eward us (look at caching changes for ewar)
@@ -2801,6 +2800,7 @@ namespace Questor.Modules.Caching
                                                                                                                                      * over currently targeting entities will make us switch targets more often what we dont want
                                                                                                                                      * and our weapons will be on cooldown when we can finaly hit that scrambler for example */
                                                           .ThenByDescending(t => t.Id == currentDroneTargetId)                      // Keep current target
+                                                          .ThenByDescending(t => t.IsTooCloseTooFastTooSmallToHit)
                                                           .ThenBy(t => t.Distance)
                                                           .ThenBy(t => t.Health)
                                                           .FirstOrDefault();
