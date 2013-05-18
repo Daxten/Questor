@@ -2763,10 +2763,8 @@ namespace Questor.Modules.Caching
 
             targets.Where(t => !Cache.Instance.IgnoreTargets.Contains(t.Name) && t.Distance < distance)
                                                   .Where(t => !Entities.Any(e => e.Id == t.Id && !e.IsValid))
-                                                  .Where(t => t.IsSentry == Settings.Instance.KillSentries)
                                                   .OrderByDescending(t => !t.IsFrigate || !t.IsNPCFrigate)
                                                   .ThenByDescending(t => !t.IsTooCloseTooFastTooSmallToHit)
-                                                  .ThenByDescending(t => t.IsEntityWeShouldKeepShooting)
                                                   .ThenByDescending(t => t.IsTargetedBy)                                    // if something does not target us it's not too interesting
                                                   .ThenByDescending(t => t.IsWarpScramblingMe)                              // WarpScram over Webs over any other EWAR
                                                   .ThenByDescending(t => t.IsWebbingMe)
@@ -2789,9 +2787,8 @@ namespace Questor.Modules.Caching
 
             targets.Where(t => !Cache.Instance.IgnoreTargets.Contains(t.Name) && t.Distance < distance)
                                                           .Where(t => !Entities.Any(e => e.Id == t.Id && !e.IsValid))
-                                                          .Where(t => t.IsSentry == Settings.Instance.KillSentries)
                                                           .Where(t => t.Distance < Settings.Instance.DroneControlRange)
-                                                          .OrderByDescending(t => (t.IsFrigate || t.IsNPCFrigate) == !Settings.Instance.DronesKillHighValueTargets)
+                                                          .OrderByDescending(t => t.IsFrigate || t.IsNPCFrigate)
                                                           .ThenByDescending(t => t.IsWarpScramblingMe)                              // WarpScram over Webs over any other EWAR
                                                           .ThenByDescending(t => t.IsWebbingMe)
                                                           .ThenByDescending(t => t.IsActiveEwar())                                  // Will return True if the target ever eward us (look at caching changes for ewar)
@@ -2827,12 +2824,12 @@ namespace Questor.Modules.Caching
             NextGetBestCombatTarget = DateTime.UtcNow.AddMilliseconds(800);
 
             // Weapon Target
-            PreferredPrimaryWeaponTarget = GetBestWeaponTargets(distance, _potentialTargets).FirstOrDefault();
+            if (!(PreferredPrimaryWeaponTarget != null && PreferredPrimaryWeaponTarget.IsEntityWeShouldKeepShooting))
+                PreferredPrimaryWeaponTarget = GetBestWeaponTargets(distance, _potentialTargets).FirstOrDefault();
 
             // Drone Target
             if (Settings.Instance.UseDrones)
             {
-                long currentDroneTargetId = TargetingCache.CurrentDronesTarget != null ? TargetingCache.CurrentDronesTarget.Id : -1;
                 PreferredDroneTarget = GetBestDroneTargets(distance, _potentialTargets).FirstOrDefault();
             }
 
