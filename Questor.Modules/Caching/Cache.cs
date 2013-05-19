@@ -2326,57 +2326,6 @@ namespace Questor.Modules.Caching
             }
         }
 
-        /// <summary>
-        ///   Remove targets from priority list
-        /// </summary>
-        /// <param name = "targets"></param>
-        public bool RemovePrimaryWeaponPriorityTargets(IEnumerable<EntityCache> targets)
-        {
-            int removed = 0;
-            targets = targets.ToList();
-
-            if (targets.Any())
-            {
-                removed = _primaryWeaponPriorityTargets.RemoveAll(pt => targets.Any(t => t.Id == pt.EntityID));
-            }
-            return removed > 0;
-        }
-
-        /// <summary>
-        ///   Remove target from priority list
-        /// </summary>
-        /// <param name = "targetToRemove"></param>
-        public bool RemovePrimaryWeaponPriorityTarget(PriorityTarget targetToRemove)
-        {
-            try
-            {
-                _primaryWeaponPriorityTargets.Remove(targetToRemove);
-            }
-            catch (Exception)
-            {
-                Logging.Log("Cache.RemovePrimaryWeaponPriorityTargets","Unable to remove [" + targetToRemove.Entity.Name + "] from the _primaryWeaponPriorityTargets list, was it already removed?",Logging.Teal);
-                return true;  //(should we return false here?!) - if we did questor would hang...
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        ///   Remove targets from priority list
-        /// </summary>
-        /// <param name = "targets"></param>
-        public bool RemoveDronePriorityTargets(IEnumerable<EntityCache> targets)
-        {
-            int removed = 0;
-            targets = targets.ToList();
-
-            if (targets.Any())
-            {
-                removed = _dronePriorityTargets.RemoveAll(pt => targets.Any(t => t.Id == pt.EntityID));
-            }
-            return removed > 0;
-        }
-
         public void AddEntitiesThatHaveExploded(string module)
         {
             foreach (EntityCache _entity in Cache.Instance.Entities)

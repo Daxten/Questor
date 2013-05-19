@@ -976,7 +976,6 @@ namespace Questor.Modules.Activities
             if (breakOnAttackers && Cache.Instance.TargetedBy.Count(t => (!t.IsSentry || Settings.Instance.KillSentries) && !Cache.Instance.IgnoreTargets.Contains(t.Name)) > killTargets.Count(e => e.IsTargetedBy))
             {
                 // We are being attacked, break the kill order
-                if (Cache.Instance.RemovePrimaryWeaponPriorityTargets(killTargets)) Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Breaking off kill order, new spawn has arrived!", Logging.Teal);
 
                 foreach (EntityCache KillTargetEntity in Cache.Instance.Targets.Where(e => targetNames.Contains(e.Name) && (e.IsTarget || e.IsTargeting)))
                 {
