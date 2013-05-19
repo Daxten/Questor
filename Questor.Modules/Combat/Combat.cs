@@ -751,13 +751,13 @@ namespace Questor.Modules.Combat
         public bool UnlockHighValueTarget(string module, string reason, bool OutOfRangeOnly = false)
         {
             EntityCache unlockThisHighValueTarget = null;
+            long preferredId = Cache.Instance.PreferredPrimaryWeaponTarget != null ? Cache.Instance.PreferredPrimaryWeaponTarget.Id : -1;
                     
             if (!OutOfRangeOnly)
             {
                 try
                 {
-                    if (highValueTargetsTargeted.Count() >= maxHighValueTargets
-                        && (Cache.Instance.PreferredPrimaryWeaponTarget != null ? !Cache.Instance.Entities.Any(t => t.Id == Cache.Instance.PreferredPrimaryWeaponTarget.Id && (t.IsTarget || t.IsTargeting)) : true))
+                    if (highValueTargetsTargeted.Count(t => t.Id != preferredId) >= maxHighValueTargets)
                     {
                         unlockThisHighValueTarget = Cache.Instance.GetBestWeaponTargets((double)Distances.OnGridWithMe).Where(t => t.IsTarget && !lowValueTargetsTargeted.Contains(t)).LastOrDefault();
                     }
@@ -798,14 +798,14 @@ namespace Questor.Modules.Combat
 
         public bool UnlockLowValueTarget(string module, string reason, bool OutOfRangeOnly = false)
         {
-            
             EntityCache unlockThisLowValueTarget = null;
+            long preferredId = Cache.Instance.PreferredDroneTarget != null ? Cache.Instance.PreferredDroneTarget.Id : -1;
+
             if (!OutOfRangeOnly)
             {
                 try
                 {
-                    if (lowValueTargetsTargeted.Count() >= maxLowValueTarget
-                        && (Cache.Instance.PreferredDroneTarget != null ? !Cache.Instance.Entities.Any(t => t.Id == Cache.Instance.PreferredDroneTarget.Id && (t.IsTarget || t.IsTargeting)) : true))
+                    if (lowValueTargetsTargeted.Count(e => e.Id != preferredId) >= maxLowValueTarget)
                     {
                         unlockThisLowValueTarget = Cache.Instance.GetBestDroneTargets((double)Distances.OnGridWithMe).Where(t => t.IsTarget && !highValueTargetsTargeted.Contains(t)).LastOrDefault();
                     }
@@ -945,7 +945,6 @@ namespace Questor.Modules.Combat
             {
                 highValueTargetsTargeted = Cache.Instance.GetBestWeaponTargets((double)Distances.OnGridWithMe)
                                             .Where(t => t.IsTarget || t.IsTargeting)
-                                            .Where(t => Cache.Instance.PreferredDroneTarget != null ? Cache.Instance.PreferredDroneTarget.Id != t.Id : true)
                                             .Take(maxHighValueTargets);
             }
             catch (NullReferenceException) { }
@@ -989,7 +988,7 @@ namespace Questor.Modules.Combat
                     return;
                 }
 
-                if (Cache.Instance.PreferredPrimaryWeaponTarget.IsReadyToTarget && !Cache.Instance.PreferredPrimaryWeaponTarget.IsTargeting)
+                if (Cache.Instance.Entities.Any(e => e.Id == Cache.Instance.PreferredPrimaryWeaponTarget.Id && (e.IsTarget || e.IsTargeting || e.HasExploded)))
                 {
                     //
                     // unlock a lower priority entity if needed
@@ -1029,7 +1028,7 @@ namespace Questor.Modules.Combat
                     return;
                 }
 
-                if (Cache.Instance.PreferredDroneTarget.IsReadyToTarget && !Cache.Instance.PreferredDroneTarget.IsTargeting)
+                if (Cache.Instance.Entities.Any(e => e.Id == Cache.Instance.PreferredDroneTarget.Id && (e.IsTarget || e.IsTargeting || e.HasExploded)))
                 {
                     //
                     // unlock a lower priority entity if needed
