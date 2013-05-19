@@ -761,7 +761,7 @@ namespace Questor.Modules.Combat
                     if (highValueTargetsTargeted.Count() >= maxHighValueTargets
                         && (Cache.Instance.PreferredPrimaryWeaponTarget != null ? !Cache.Instance.Entities.Any(t => t.Id == Cache.Instance.PreferredPrimaryWeaponTarget.Id && (t.IsTarget || t.IsTargeting)) : true))
                     {
-                        unlockThisHighValueTarget = Cache.Instance.GetBestWeaponTargets((double)Distances.OnGridWithMe).Where(t => t.IsTarget && (!t.IsFrigate && !t.IsNPCFrigate)).LastOrDefault();
+                        unlockThisHighValueTarget = Cache.Instance.GetBestWeaponTargets((double)Distances.OnGridWithMe).Where(t => t.IsTarget && !lowValueTargetsTargeted.Contains(t)).LastOrDefault();
                     }
                 } catch (NullReferenceException) { }
             }
@@ -809,7 +809,7 @@ namespace Questor.Modules.Combat
                     if (lowValueTargetsTargeted.Count() >= maxLowValueTarget
                         && (Cache.Instance.PreferredDroneTarget != null ? !Cache.Instance.Entities.Any(t => t.Id == Cache.Instance.PreferredDroneTarget.Id && (t.IsTarget || t.IsTargeting)) : true))
                     {
-                        unlockThisLowValueTarget = Cache.Instance.GetBestDroneTargets((double)Distances.OnGridWithMe).Where(t => t.IsTarget && (t.IsFrigate || t.IsNPCFrigate)).LastOrDefault();
+                        unlockThisLowValueTarget = Cache.Instance.GetBestDroneTargets((double)Distances.OnGridWithMe).Where(t => t.IsTarget && !highValueTargetsTargeted.Contains(t)).LastOrDefault();
                     }
                 }
                 catch (NullReferenceException) { }
