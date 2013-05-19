@@ -128,7 +128,7 @@ namespace Questor.Modules.Combat
                 }
 
                 // Is the last target our current active target?
-                if (target.IsActiveTarget)
+                if (Cache.Instance.Entities.Any(t => t.Id == target.Id && t.IsActiveTarget))
                 {
                     // Save target id (so we do not constantly switch)
                     _lastTarget = target.Id;
@@ -142,7 +142,7 @@ namespace Questor.Modules.Combat
                 {
                     if (target.IsTarget)
                     {
-                        target.MakeActiveTarget();
+                        Cache.Instance.Entities.First(t => t.Id == target.Id).MakeActiveTarget();
                         Logging.Log("Drones", "[" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away] is now the target for drones", Logging.Magenta);
                     }
                 }
