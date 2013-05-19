@@ -140,7 +140,7 @@ namespace Questor.Modules.Combat
                 }
                 else // Make the target active
                 {
-                    if (target.IsTarget)
+                    if (Cache.Instance.Entities.Any(t => t.Id == target.Id && t.IsTarget))
                     {
                         Cache.Instance.Entities.First(t => t.Id == target.Id).MakeActiveTarget();
                         Logging.Log("Drones", "[" + target.Name + "][ID: " + Cache.Instance.MaskedID(target.Id) + "][" + Math.Round(target.Distance / 1000, 0) + "k away] is now the target for drones", Logging.Magenta);
