@@ -963,6 +963,7 @@ namespace Questor.Modules.Activities
                 Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "All targets killed " + targetNames.Aggregate((current, next) => current + "[" + next + "]"), Logging.Teal);
 
                 // We killed it/them !?!?!? :)
+                Cache.Instance.IgnoreTargets.RemoveWhere(t => targetNames.Contains(t));
                 Nextaction();
                 return;
             }
