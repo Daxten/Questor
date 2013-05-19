@@ -223,7 +223,7 @@ namespace Questor.Modules.Activities
 
                 if (DateTime.UtcNow > Cache.Instance.NextWarpTo)
                 {
-                    if (Cache.Instance.InSpace && !Cache.Instance.TargetedBy.Any(t => t.IsWarpScramblingMe))
+                    if (Cache.Instance.InSpace && !Cache.Instance.TargetedBy.Any(t => t.IsWarpScrambler))
                     {
                         Logging.Log("Traveler", "Warping to [" + Logging.Yellow + _locationName + Logging.Green + "][" + Logging.Yellow + Math.Round((MyNextStargate.Distance / 1000) / 149598000, 2) + Logging.Green + " AU away]", Logging.Green);
                         MyNextStargate.WarpTo();
@@ -250,14 +250,14 @@ namespace Questor.Modules.Activities
                 {
                     if (Settings.Instance.DebugGotobase) Logging.Log(module, "TravelToMiningHomeBookmark: _combat.ProcessState()", Logging.White);
                     _combat.ProcessState();
-                    if (!Cache.Instance.TargetedBy.Any(t => t.IsWarpScramblingMe))
+                    if (!Cache.Instance.TargetedBy.Any(t => t.IsWarpScrambler))
                     {
                         if (Settings.Instance.DebugGotobase) Logging.Log(module, "TravelToMiningHomeBookmark: we are not scrambled - pulling drones.", Logging.White);
                         Cache.Instance.IsMissionPocketDone = true; //tells drones.cs that we can pull drones
 
                         //Logging.Log("CombatmissionBehavior","TravelToAgentStation: not pointed",Logging.White);
                     }
-                    else if (Cache.Instance.TargetedBy.Any(t => t.IsWarpScramblingMe))
+                    else if (Cache.Instance.TargetedBy.Any(t => t.IsWarpScrambler))
                     {
                         Cache.Instance.IsMissionPocketDone = false;
                         if (Settings.Instance.DebugGotobase) Logging.Log(module, "TravelToMiningHomeBookmark: we are scrambled", Logging.Teal);
@@ -393,14 +393,14 @@ namespace Questor.Modules.Activities
                         Logging.Log("Travel.TravelToAgentsStation", "Exception [" + exception + "]", Logging.Debug);
                     }
 
-                    if (!Cache.Instance.TargetedBy.Any(t => t.IsWarpScramblingMe))
+                    if (!Cache.Instance.TargetedBy.Any(t => t.IsWarpScrambler))
                     {
                         if (Settings.Instance.DebugGotobase) Logging.Log(module, "TravelToAgentsStation: we are not scrambled - pulling drones.", Logging.White);
                         Cache.Instance.IsMissionPocketDone = true; //tells drones.cs that we can pull drones
 
                         //Logging.Log("CombatmissionBehavior","TravelToAgentStation: not pointed",Logging.White);
                     }
-                    else if (Cache.Instance.TargetedBy.Any(t => t.IsWarpScramblingMe))
+                    else if (Cache.Instance.TargetedBy.Any(t => t.IsWarpScrambler))
                     {
                         Cache.Instance.IsMissionPocketDone = false;
                         if (Settings.Instance.DebugGotobase) Logging.Log(module, "TravelToAgentsStation: we are scrambled", Logging.Teal);
@@ -517,14 +517,14 @@ namespace Questor.Modules.Activities
                 {
                     if (Settings.Instance.DebugGotobase) Logging.Log(module, "TravelToAgentsStation: _combat.ProcessState()", Logging.White);
                     _combat.ProcessState();
-                    if (!Cache.Instance.TargetedBy.Any(t => t.IsWarpScramblingMe))
+                    if (!Cache.Instance.TargetedBy.Any(t => t.IsWarpScrambler))
                     {
                         if (Settings.Instance.DebugGotobase) Logging.Log(module, "TravelToAgentsStation: we are not scrambled - pulling drones.", Logging.White);
                         Cache.Instance.IsMissionPocketDone = true; //tells drones.cs that we can pull drones
 
                         //Logging.Log("CombatmissionBehavior","TravelToAgentStation: not pointed",Logging.White);
                     }
-                    else if (Cache.Instance.TargetedBy.Any(t => t.IsWarpScramblingMe))
+                    else if (Cache.Instance.TargetedBy.Any(t => t.IsWarpScrambler))
                     {
                         Cache.Instance.IsMissionPocketDone = false;
                         if (Settings.Instance.DebugGotobase) Logging.Log(module, "TravelToAgentsStation: we are scrambled", Logging.Teal);

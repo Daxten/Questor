@@ -451,8 +451,6 @@ namespace Questor.Modules.Combat
             // When in warp there's nothing we can do, so ignore everything
             if (Cache.Instance.InSpace && Cache.Instance.InWarp)
             {
-                Cache.Instance.RemovePrimaryWeaponPriorityTargets(Cache.Instance.PrimaryWeaponPriorityTargets);
-                Cache.Instance.RemoveDronePriorityTargets(Cache.Instance.DronePriorityTargets);
                 if (Settings.Instance.DebugActivateWeapons) Logging.Log("Combat", "ActivateWeapons: deactivate: we are in warp! doing nothing", Logging.Teal);
                 return;
             }
@@ -772,7 +770,7 @@ namespace Questor.Modules.Combat
                     unlockThisHighValueTarget = highValueTargetsTargeted.Where(h => h.IsTarget
                                                                             && (h.Distance > Cache.Instance.MaxRange
                                                                             || (Cache.Instance.IgnoreTargets.Contains(h.Name.Trim())))
-                                                                            && !h.IsPriorityWarpScrambler)
+                                                                            && !h.IsWarpScrambler)
                                                                             .OrderByDescending(t => t.Distance > Cache.Instance.MaxRange)
                                                                             .ThenByDescending(t => t.Distance)
                                                                             .FirstOrDefault();
@@ -821,7 +819,7 @@ namespace Questor.Modules.Combat
                     unlockThisLowValueTarget = lowValueTargetsTargeted.Where(h => h.IsTarget
                                                                     && ((h.Distance > Cache.Instance.MaxRange)
                                                                     || (Cache.Instance.IgnoreTargets.Contains(h.Name.Trim())))
-                                                                    && !h.IsPriorityWarpScrambler)
+                                                                    && !h.IsWarpScrambler)
                                                                     .OrderByDescending(t => t.Distance < Settings.Instance.DroneControlRange) //replace with .IsInDroneRange (which can be set to weapons range if usedrones is falee)
                                                                     .ThenByDescending(t => t.Nearest5kDistance)
                                                                     .FirstOrDefault();
@@ -1010,7 +1008,6 @@ namespace Questor.Modules.Combat
                         if (Cache.Instance.PreferredPrimaryWeaponTarget.LockTarget("TargetCombatants.PreferredPrimaryWeaponTarget"))
                         {
                             Logging.Log("Combat", "Targeting preferred primary weapon target [" + Cache.Instance.PreferredPrimaryWeaponTarget.Name + "][ID: " + Cache.Instance.MaskedID(Cache.Instance.PreferredPrimaryWeaponTarget.Id) + "][" + Math.Round(Cache.Instance.PreferredPrimaryWeaponTarget.Distance / 1000, 0) + "k away]", Logging.Teal);
-                            //highValueTargets.Add(primaryWeaponPriorityEntity);
                             Cache.Instance.NextTargetAction = DateTime.UtcNow.AddMilliseconds(Time.Instance.TargetDelay_milliseconds);
                             return;
                         }

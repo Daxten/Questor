@@ -1210,7 +1210,7 @@ namespace Questor.Modules.Caching
                 if (Cache.Instance.InSpace)
                 {
                     _potentialCombatTargets = Entities.Where(e => e.CategoryId == (int)CategoryID.Entity
-                                                        && (!e.IsSentry || (e.IsSentry && e.IsActiveEwar()) || (e.IsSentry && (Settings.Instance.KillSentries || (Cache.Instance.PreferredPrimaryWeaponTarget != null && e.Id == Cache.Instance.PreferredPrimaryWeaponTarget.Id))))                       
+                                                        && (!e.IsSentry || (e.IsSentry && e.IsEwarTarget()) || (e.IsSentry && (Settings.Instance.KillSentries || (Cache.Instance.PreferredPrimaryWeaponTarget != null && e.Id == Cache.Instance.PreferredPrimaryWeaponTarget.Id))))                       
                                                         && (e.IsNpc || e.IsNpcByGroupID)
                                                         //&& !e.IsTarget
                                                         && !e.IsContainer
@@ -1632,24 +1632,6 @@ namespace Questor.Modules.Caching
 
                 _entitiesthatHaveExploded.RemoveAll(pt => DirectEve.Entities.All(e => e.Id != pt.Id));
                 return _entitiesthatHaveExploded;
-            }
-        }
-
-        public IEnumerable<EntityCache> PrimaryWeaponPriorityTargets
-        {
-            get
-            {
-                _primaryWeaponPriorityTargets.RemoveAll(pt => Cache.Instance.Entities.All(e => e.Id != pt.EntityID));
-                return _primaryWeaponPriorityTargets.OrderByDescending(pt => pt.PrimaryWeaponPriority).ThenBy(pt => pt.Entity.Distance).Select(pt => pt.Entity);
-            }
-        }
-
-        public IEnumerable<EntityCache> DronePriorityTargets
-        {
-            get
-            {
-                _dronePriorityTargets.RemoveAll(pt => Cache.Instance.Entities.All(e => e.Id != pt.EntityID));
-                return _dronePriorityTargets.OrderByDescending(pt => pt.DronePriority).ThenBy(pt => pt.Entity.Distance).Select(pt => pt.Entity);
             }
         }
 
@@ -2395,75 +2377,6 @@ namespace Questor.Modules.Caching
             return removed > 0;
         }
 
-        /// <summary>
-        ///   Add PrimaryWeapon priority targets
-        /// </summary>
-        /// <param name = "targets"></param>
-        /// <param name = "priority"></param>
-        /// <param name="module"> </param>
-        public void AddPrimaryWeaponPriorityTargets(IEnumerable<EntityCache> targets, PrimaryWeaponPriority priority, string module)
-        {
-            foreach (EntityCache target in targets)
-            {
-                if (Cache.Instance.IgnoreTargets.Contains(target.Name.Trim()) || PrimaryWeaponPriorityTargets.Any(p => p.Id == target.Id))
-                {
-                    continue;
-                }
-
-                //
-                // Primary Weapons
-                //
-                if (Cache.Instance.DoWeCurrentlyHaveTurretsMounted())
-                {
-                    if (target.Velocity < Settings.Instance.SpeedNPCFrigatesShouldBeIgnoredByPrimaryWeapons
-                        || target.Distance > Settings.Instance.DistanceNPCFrigatesShouldBeIgnoredByPrimaryWeapons)
-                    {
-                        Logging.Log(module, "Adding [" + target.Name + "] Speed [" + Math.Round(target.Velocity / 1000, 2) + "k/s] Distance [" + Math.Round(target.Distance / 1000, 2) + "] [ID: " + Cache.Instance.MaskedID(target.Id) + "] as a PrimaryWeaponPriorityTarget [" + priority.ToString() + "]", Logging.White);
-                        _primaryWeaponPriorityTargets.Add(new PriorityTarget { EntityID = target.Id, PrimaryWeaponPriority = priority });
-                    }
-                }
-                else
-                {
-                    Logging.Log(module, "Adding [" + target.Name + "] Speed [" + Math.Round(target.Velocity / 1000, 2) + "k/s] Distance [" + Math.Round(target.Distance /1000, 2) + "] [ID: " + Cache.Instance.MaskedID(target.Id) + "] as a PrimaryWeaponPriorityTarget [" + priority.ToString() + "]", Logging.White);
-                    _primaryWeaponPriorityTargets.Add(new PriorityTarget { EntityID = target.Id, PrimaryWeaponPriority = priority });
-                }
-
-                continue;
-            }
-
-            return;
-        }
-
-        /// <summary>
-        ///   Add Drone priority targets
-        /// </summary>
-        /// <param name = "targets"></param>
-        /// <param name = "priority"></param>
-        /// <param name = "module"></param>
-        public void AddDronePriorityTargets(IEnumerable<EntityCache> targets, DronePriority priority, string module)
-        {
-            foreach (EntityCache target in targets)
-            {
-                if (Cache.Instance.IgnoreTargets.Contains(target.Name.Trim()) || _dronePriorityTargets.Any(p => p.EntityID == target.Id))
-                {
-                    continue;
-                }
-
-                if (Cache.Instance.InMission && Cache.Instance.UseDrones)
-                {
-                    Logging.Log(module, "Adding [" + target.Name + "] Speed [" + Math.Round(target.Velocity / 1000, 2) + "k/s] Distance [" + Math.Round(target.Distance / 1000, 2) + "] [ID: " + Cache.Instance.MaskedID(target.Id) + "] as a drone priority target [" + priority.ToString() + "]", Logging.Teal);
-                    _dronePriorityTargets.Add(new PriorityTarget { EntityID = target.Id, DronePriority = priority });    
-                }
-                else if (Settings.Instance.UseDrones)
-                {
-                    Logging.Log(module, "Adding [" + target.Name + "] Speed [" + Math.Round(target.Velocity / 1000, 2) + "k/s] Distance [" + Math.Round(target.Distance / 1000, 2) + "] [ID: " + Cache.Instance.MaskedID(target.Id) + "] as a drone priority target [" + priority.ToString() + "]", Logging.Teal);
-                    _dronePriorityTargets.Add(new PriorityTarget { EntityID = target.Id, DronePriority = priority });    
-                }
-            }
-
-            return;
-        }
-
         public void AddEntitiesThatHaveExploded(string module)
         {
             foreach (EntityCache _entity in Cache.Instance.Entities)
@@ -2767,9 +2680,9 @@ namespace Questor.Modules.Caching
                                                   .OrderByDescending(t => !t.IsFrigate && !t.IsNPCFrigate)                  // Weapons should fire big targets first
                                                   .ThenByDescending(t => !t.IsTooCloseTooFastTooSmallToHit)
                                                   .ThenByDescending(t => t.IsTargetedBy)                                    // if something does not target us it's not too interesting
-                                                  .ThenByDescending(t => t.IsWarpScramblingMe)                              // WarpScram over Webs over any other EWAR
-                                                  .ThenByDescending(t => t.IsWebbingMe)
-                                                  .ThenByDescending(t => t.IsActiveEwar())                                  // Will return True if the target ever eward us (look at caching changes for ewar)
+                                                  .ThenByDescending(t => t.IsWarpScrambler)                              // WarpScram over Webs over any other EWAR
+                                                  .ThenByDescending(t => t.IsWebber)
+                                                  .ThenByDescending(t => t.IsEwarTarget())                                  // Will return True if the target ever eward us (look at caching changes for ewar)
                                                   .ThenByDescending(t => t.IsTarget || t.IsTargeting)                       /* We like targets we alrdy targeted or targeting atm, priorizing targets 
                                                                                                                              * over currently targeting entities will make us switch targets more often what we dont want
                                                                                                                              * and our weapons will be on cooldown when we can finaly hit that scrambler for example */
@@ -2791,9 +2704,9 @@ namespace Questor.Modules.Caching
                                                           .Where(t => !Entities.Any(e => e.Id == t.Id && !e.IsValid))
                                                           .Where(t => t.Distance < Settings.Instance.DroneControlRange)
                                                           .OrderByDescending(t => (t.IsFrigate || t.IsNPCFrigate) || Settings.Instance.DronesKillHighValueTargets)
-                                                          .ThenByDescending(t => t.IsWarpScramblingMe)                              // WarpScram over Webs over any other EWAR
-                                                          .ThenByDescending(t => t.IsWebbingMe)
-                                                          .ThenByDescending(t => t.IsActiveEwar())                                  // Will return True if the target ever eward us (look at caching changes for ewar)
+                                                          .ThenByDescending(t => t.IsWarpScrambler)                              // WarpScram over Webs over any other EWAR
+                                                          .ThenByDescending(t => t.IsWebber)
+                                                          .ThenByDescending(t => t.IsEwarTarget())                                  // Will return True if the target ever eward us (look at caching changes for ewar)
                                                           .ThenByDescending(t => t.IsTargetedBy)                                    // if something does not target us it's not too interesting
                                                           .ThenByDescending(t => t.IsTarget || t.IsTargeting)                       /* We like targets we alrdy targeted or targeting atm, priorizing targets 
                                                                                                                                      * over currently targeting entities will make us switch targets more often what we dont want
@@ -2896,7 +2809,7 @@ namespace Questor.Modules.Caching
             //Start of Current EWar Effects On Me (below)
             //
             //Dampening
-            TargetingCache.EntitiesDampeningMe = targets.Where(e => e.IsSensorDampeningMe).ToList();
+            TargetingCache.EntitiesDampeningMe = targets.Where(e => e.IsSensorDamper).ToList();
             TargetingCache.EntitiesDampeningMeText = String.Empty;
             foreach (EntityCache entityDampeningMe in TargetingCache.EntitiesDampeningMe)
             {
@@ -2907,7 +2820,7 @@ namespace Questor.Modules.Caching
             }
 
             //Neutralizing
-            TargetingCache.EntitiesNeutralizingMe = targets.Where(e => e.IsNeutralizingMe).ToList();
+            TargetingCache.EntitiesNeutralizingMe = targets.Where(e => e.IsNeuter).ToList();
             TargetingCache.EntitiesNeutralizingMeText = String.Empty;
             foreach (EntityCache entityNeutralizingMe in TargetingCache.EntitiesNeutralizingMe)
             {
@@ -2918,7 +2831,7 @@ namespace Questor.Modules.Caching
             }
 
             //TargetPainting
-            TargetingCache.EntitiesTargetPatingingMe = targets.Where(e => e.IsTargetPaintingMe).ToList();
+            TargetingCache.EntitiesTargetPatingingMe = targets.Where(e => e.IsTargetPainter).ToList();
             TargetingCache.EntitiesTargetPaintingMeText = String.Empty;
             foreach (EntityCache entityTargetpaintingMe in TargetingCache.EntitiesTargetPatingingMe)
             {
@@ -2929,7 +2842,7 @@ namespace Questor.Modules.Caching
             }
 
             //TrackingDisrupting
-            TargetingCache.EntitiesTrackingDisruptingMe = targets.Where(e => e.IsTrackingDisruptingMe).ToList();
+            TargetingCache.EntitiesTrackingDisruptingMe = targets.Where(e => e.IsTrackingDisruptor).ToList();
             TargetingCache.EntitiesTrackingDisruptingMeText = String.Empty;
             foreach (EntityCache entityTrackingDisruptingMe in TargetingCache.EntitiesTrackingDisruptingMe)
             {
@@ -2940,7 +2853,7 @@ namespace Questor.Modules.Caching
             }
 
             //Jamming (ECM)
-            TargetingCache.EntitiesJammingMe = targets.Where(e => e.IsJammingMe).ToList();
+            TargetingCache.EntitiesJammingMe = targets.Where(e => e.IsJammer).ToList();
             TargetingCache.EntitiesJammingMeText = String.Empty;
             foreach (EntityCache entityJammingMe in TargetingCache.EntitiesJammingMe)
             {
@@ -2951,7 +2864,7 @@ namespace Questor.Modules.Caching
             }
 
             //Warp Disrupting (and warp scrambling)
-            TargetingCache.EntitiesWarpDisruptingMe = targets.Where(e => e.IsWarpScramblingMe).ToList();
+            TargetingCache.EntitiesWarpDisruptingMe = targets.Where(e => e.IsWarpScrambler).ToList();
             TargetingCache.EntitiesWarpDisruptingMeText = String.Empty;
             foreach (EntityCache entityWarpDisruptingMe in TargetingCache.EntitiesWarpDisruptingMe)
             {
@@ -2962,7 +2875,7 @@ namespace Questor.Modules.Caching
             }
 
             //Webbing
-            TargetingCache.EntitiesWebbingMe = targets.Where(e => e.IsWebbingMe).ToList();
+            TargetingCache.EntitiesWebbingMe = targets.Where(e => e.IsWebber).ToList();
             TargetingCache.EntitiesWebbingMeText = String.Empty;
             foreach (EntityCache entityWebbingMe in TargetingCache.EntitiesWebbingMe)
             {

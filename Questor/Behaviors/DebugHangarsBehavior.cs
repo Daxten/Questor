@@ -168,7 +168,7 @@ namespace Questor.Behaviors
                     _drones.ProcessState(); //do we really want to use drones here?
                 }
             }
-            if (Cache.Instance.InSpace && !Cache.Instance.TargetedBy.Any(t => t.IsWarpScramblingMe))
+            if (Cache.Instance.InSpace && !Cache.Instance.TargetedBy.Any(t => t.IsWarpScrambler))
             {
                 Cache.Instance.IsMissionPocketDone = true; //tells drones.cs that we can pull drones
                 //Logging.Log("CombatmissionBehavior","TravelToAgentStation: not pointed",Logging.White);
