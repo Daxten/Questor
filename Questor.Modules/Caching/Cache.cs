@@ -2758,7 +2758,7 @@ namespace Questor.Modules.Caching
             //Start of Current EWar Effects On Me (below)
             //
             //Dampening
-            TargetingCache.EntitiesDampeningMe = targets.Where(e => e.IsSensorDamper).ToList();
+            TargetingCache.EntitiesDampeningMe = targets.Where(e => e.IsActiveSensorDamper).ToList();
             TargetingCache.EntitiesDampeningMeText = String.Empty;
             foreach (EntityCache entityDampeningMe in TargetingCache.EntitiesDampeningMe)
             {
@@ -2769,7 +2769,7 @@ namespace Questor.Modules.Caching
             }
 
             //Neutralizing
-            TargetingCache.EntitiesNeutralizingMe = targets.Where(e => e.IsNeuter).ToList();
+            TargetingCache.EntitiesNeutralizingMe = targets.Where(e => e.isActiveNeuter).ToList();
             TargetingCache.EntitiesNeutralizingMeText = String.Empty;
             foreach (EntityCache entityNeutralizingMe in TargetingCache.EntitiesNeutralizingMe)
             {
@@ -2780,7 +2780,7 @@ namespace Questor.Modules.Caching
             }
 
             //TargetPainting
-            TargetingCache.EntitiesTargetPatingingMe = targets.Where(e => e.IsTargetPainter).ToList();
+            TargetingCache.EntitiesTargetPatingingMe = targets.Where(e => e.IsActiveTargetPainter).ToList();
             TargetingCache.EntitiesTargetPaintingMeText = String.Empty;
             foreach (EntityCache entityTargetpaintingMe in TargetingCache.EntitiesTargetPatingingMe)
             {
@@ -2791,7 +2791,7 @@ namespace Questor.Modules.Caching
             }
 
             //TrackingDisrupting
-            TargetingCache.EntitiesTrackingDisruptingMe = targets.Where(e => e.IsTrackingDisruptor).ToList();
+            TargetingCache.EntitiesTrackingDisruptingMe = targets.Where(e => e.IsActiveTrackingDisruptor).ToList();
             TargetingCache.EntitiesTrackingDisruptingMeText = String.Empty;
             foreach (EntityCache entityTrackingDisruptingMe in TargetingCache.EntitiesTrackingDisruptingMe)
             {
@@ -2802,7 +2802,7 @@ namespace Questor.Modules.Caching
             }
 
             //Jamming (ECM)
-            TargetingCache.EntitiesJammingMe = targets.Where(e => e.IsJammer).ToList();
+            TargetingCache.EntitiesJammingMe = targets.Where(e => e.isActiveJammer).ToList();
             TargetingCache.EntitiesJammingMeText = String.Empty;
             foreach (EntityCache entityJammingMe in TargetingCache.EntitiesJammingMe)
             {
@@ -2813,7 +2813,7 @@ namespace Questor.Modules.Caching
             }
 
             //Warp Disrupting (and warp scrambling)
-            TargetingCache.EntitiesWarpDisruptingMe = targets.Where(e => e.IsWarpScrambler).ToList();
+            TargetingCache.EntitiesWarpDisruptingMe = targets.Where(e => e.isActiveWarpScrambler).ToList();
             TargetingCache.EntitiesWarpDisruptingMeText = String.Empty;
             foreach (EntityCache entityWarpDisruptingMe in TargetingCache.EntitiesWarpDisruptingMe)
             {
@@ -2824,7 +2824,7 @@ namespace Questor.Modules.Caching
             }
 
             //Webbing
-            TargetingCache.EntitiesWebbingMe = targets.Where(e => e.IsWebber).ToList();
+            TargetingCache.EntitiesWebbingMe = targets.Where(e => e.isActiveWebber).ToList();
             TargetingCache.EntitiesWebbingMeText = String.Empty;
             foreach (EntityCache entityWebbingMe in TargetingCache.EntitiesWebbingMe)
             {

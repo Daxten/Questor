@@ -625,6 +625,18 @@ namespace Questor.Modules.Caching
             }
         }
 
+        public bool isActiveNeuter
+        {
+            get
+            {
+                if (_directEntity != null)
+                {
+                    return _directEntity.Attacks.Contains("ewEnergyNeut");
+                }
+                return false;
+            }
+        }
+
         public bool IsNeuter
         {
             get
@@ -642,6 +654,18 @@ namespace Questor.Modules.Caching
                             return true;
                         return false;
                     }
+                }
+                return false;
+            }
+        }
+
+        public bool isActiveJammer
+        {
+            get
+            {
+                if (_directEntity != null)
+                {
+                    return _directEntity.Attacks.Contains("electronic");
                 }
                 return false;
             }
@@ -669,6 +693,18 @@ namespace Questor.Modules.Caching
             }
         }
 
+        public bool IsActiveSensorDamper
+        {
+            get
+            {
+                if (_directEntity != null)
+                {
+                    return _directEntity.Attacks.Contains("ewRemoteSensorDamp");
+                }
+                return false;
+            }
+        }
+
         public bool IsSensorDamper
         {
             get
@@ -691,6 +727,18 @@ namespace Questor.Modules.Caching
             }
         }
 
+        public bool IsActiveTargetPainter
+        {
+            get
+            {
+                if (_directEntity != null)
+                {
+                    return _directEntity.Attacks.Contains("ewTargetPaint");
+                }
+                return false;
+            }
+        }
+
         public bool IsTargetPainter
         {
             get
@@ -708,6 +756,18 @@ namespace Questor.Modules.Caching
                             return true;
                         return false;
                     }
+                }
+                return false;
+            }
+        }
+
+        public bool IsActiveTrackingDisruptor
+        {
+            get
+            {
+                if (_directEntity != null)
+                {
+                    return _directEntity.Attacks.Contains("ewTrackingDisrupt");
                 }
                 return false;
             }
