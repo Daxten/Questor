@@ -1210,7 +1210,7 @@ namespace Questor.Modules.Caching
                 if (Cache.Instance.InSpace)
                 {
                     _potentialCombatTargets = Entities.Where(e => e.CategoryId == (int)CategoryID.Entity
-                                                        && (!e.IsSentry || (e.IsSentry && (Settings.Instance.KillSentries || (Cache.Instance.PreferredPrimaryWeaponTarget != null && e.Id == Cache.Instance.PreferredPrimaryWeaponTarget.Id))))                       
+                                                        && (!e.IsSentry || (e.IsSentry && e.IsActiveEwar()) || (e.IsSentry && (Settings.Instance.KillSentries || (Cache.Instance.PreferredPrimaryWeaponTarget != null && e.Id == Cache.Instance.PreferredPrimaryWeaponTarget.Id))))                       
                                                         && (e.IsNpc || e.IsNpcByGroupID)
                                                         //&& !e.IsTarget
                                                         && !e.IsContainer
