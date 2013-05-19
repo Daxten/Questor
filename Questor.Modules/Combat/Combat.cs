@@ -1094,7 +1094,7 @@ namespace Questor.Modules.Combat
             {
                 foreach (EntityCache highValueTarget in highValueTargets.Where(t => !t.IsTarget && !t.IsTargeting))
                 {
-                    if (Cache.Instance.Entities.Any(e => e.Id == highValueTarget.Id && (!e.IsTargeting && !e.IsTarget)))
+                    if (Cache.Instance.Entities.Any(e => e.Id == highValueTarget.Id && (!e.IsTargeting && !e.IsTarget && !e.HasExploded)))
                     {
                         if (highValueTarget.LockTarget("TargetCombatants.HighValueTargetingMeEntity"))
                         {
@@ -1116,7 +1116,7 @@ namespace Questor.Modules.Combat
             {
                 foreach (EntityCache lowValueTarget in lowValueTargets.Where(t => !t.IsTarget && !t.IsTargeting))
                 {
-                    if (Cache.Instance.Entities.Any(e => e.Id == lowValueTarget.Id && (!e.IsTargeting && !e.IsTarget)))
+                    if (Cache.Instance.Entities.Any(e => e.Id == lowValueTarget.Id && (!e.IsTargeting && !e.IsTarget && !e.HasExploded)))
                     {
                         if (lowValueTarget.LockTarget("TargetCombatants.LowValueTargetingMeEntity"))
                         {
