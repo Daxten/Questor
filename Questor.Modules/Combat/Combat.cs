@@ -759,7 +759,7 @@ namespace Questor.Modules.Combat
                 {
                     if (highValueTargetsTargeted.Count(t => t.Id != preferredId) >= maxHighValueTargets)
                     {
-                        unlockThisHighValueTarget = Cache.Instance.GetBestWeaponTargets((double)Distances.OnGridWithMe).Where(t => t.IsTarget && !lowValueTargetsTargeted.Contains(t)).LastOrDefault();
+                        unlockThisHighValueTarget = Cache.Instance.GetBestWeaponTargets((double)Distances.OnGridWithMe).Where(t => t.IsTarget && highValueTargetsTargeted.Any(e => t.Id == e.Id)).LastOrDefault();
                     }
                 } catch (NullReferenceException) { }
             }
@@ -807,7 +807,7 @@ namespace Questor.Modules.Combat
                 {
                     if (lowValueTargetsTargeted.Count(e => e.Id != preferredId) >= maxLowValueTarget)
                     {
-                        unlockThisLowValueTarget = Cache.Instance.GetBestDroneTargets((double)Distances.OnGridWithMe).Where(t => t.IsTarget && !highValueTargetsTargeted.Contains(t)).LastOrDefault();
+                        unlockThisLowValueTarget = Cache.Instance.GetBestDroneTargets((double)Distances.OnGridWithMe).Where(t => t.IsTarget && lowValueTargetsTargeted.Any(e => e.Id == t.Id)).LastOrDefault();
                     }
                 }
                 catch (NullReferenceException) { }
