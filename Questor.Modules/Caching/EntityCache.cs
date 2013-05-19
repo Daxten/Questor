@@ -195,12 +195,7 @@ namespace Questor.Modules.Caching
             {
                 if (_directEntity != null)
                 {
-                    if (!_directEntity.HasExploded)
-                    {
-                        return _directEntity.IsTarget;    
-                    }
-
-                    return false;
+                    return _directEntity.IsTarget;  
                 }                    
 
                 return false;
@@ -562,6 +557,18 @@ namespace Questor.Modules.Caching
             return result;
         }
 
+        public bool isActiveWarpScrambler
+        {
+            get
+            {
+                if (_directEntity != null)
+                {
+                    return _directEntity.Attacks.Contains("effects.WarpScramble");
+                }
+                return false;
+            }
+        }
+
         public bool IsWarpScrambler
         {
             get
@@ -579,6 +586,18 @@ namespace Questor.Modules.Caching
                             return true;
                         return false;
                     }
+                }
+                return false;
+            }
+        }
+
+        public bool isActiveWebber
+        {
+            get
+            {
+                if (_directEntity != null)
+                {
+                    return _directEntity.Attacks.Contains("effects.ModifyTargetSpeed");
                 }
                 return false;
             }
