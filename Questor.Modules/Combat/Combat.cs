@@ -855,7 +855,7 @@ namespace Questor.Modules.Combat
                 // Untarget stuff
                 foreach (EntityCache target in activeTargets)
                 {
-                    if (!weaponTargetsToTarget.Any(e => e.Id == target.Id) && !droneTargetsToTarget.Any(e => e.Id == target.Id))
+                    if (!weaponTargetsToTarget.Any(e => e.Id == target.Id) && !droneTargetsToTarget.Any(e => e.Id == target.Id) && !target.IsContainer)
                     {
                         Logging.Log("Combat", "Target [" + target.Name + "] is no priority target anymore, untargeting", Logging.Green);
                         target.UnlockTarget("Combat");
