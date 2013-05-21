@@ -844,7 +844,7 @@ namespace Questor.Modules.Combat
 
             #region Targeting using priority
                 IEnumerable<EntityCache> weaponTargetsToTarget = Cache.Instance.GetBestWeaponTargets((double)Distances.OnGridWithMe).Take(maxHighValueTargets);
-                IEnumerable<EntityCache> droneTargetsToTarget = Cache.Instance.GetBestDroneTargets((double)Distances.OnGridWithMe).Where(e => !weaponTargetsToTarget.Any(wt => wt.Id != e.Id)).Take(maxLowValueTargets);
+                IEnumerable<EntityCache> droneTargetsToTarget = Cache.Instance.GetBestDroneTargets((double)Distances.OnGridWithMe).Where(e => !weaponTargetsToTarget.Any(wt => wt.Id == e.Id)).Take(maxLowValueTargets);
                 IEnumerable<EntityCache> activeTargets = Cache.Instance.Entities.Where(e => (e.IsTarget && !e.HasExploded));
                 
                 // Untarget stuff
