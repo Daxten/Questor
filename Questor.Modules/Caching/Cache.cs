@@ -1218,7 +1218,7 @@ namespace Questor.Modules.Caching
                                                         && !e.IsEntityIShouldLeaveAlone
                                                         && (!e.IsBadIdea || e.IsBadIdea && e.IsAttacking)
                                                         && (!e.IsPlayer || e.IsPlayer && e.IsAttacking)
-                                                        && !e.IsLargeCollidable
+                                                        && (!e.IsLargeCollidable  || (PreferredPrimaryWeaponTarget != null && PreferredPrimaryWeaponTarget.Id == e.Id))
                                                         && !Cache.Instance.IgnoreTargets.Contains(e.Name.Trim())
                                                         )
                                                         .ToList();
@@ -2625,7 +2625,7 @@ namespace Questor.Modules.Caching
             long preferredTargetId = Cache.Instance.PreferredPrimaryWeaponTarget != null ? Cache.Instance.PreferredPrimaryWeaponTarget.Id : -1;
 
             targets = targets.Where(t => !Cache.Instance.IgnoreTargets.Contains(t.Name) && t.Distance < distance)
-                                                  .Where(t => !Entities.Any(e => e.Id == t.Id && (!e.IsValid || e.HasExploded)))
+                                                  .Where(t => Entities.Any(e => e.Id == t.Id && (e.IsValid && !e.HasExploded)))
                                                   .OrderByDescending(t => !t.IsFrigate && !t.IsNPCFrigate)                  // Weapons should fire big targets first
                                                   .ThenByDescending(t => !t.IsTooCloseTooFastTooSmallToHit)
                                                   .ThenByDescending(t => t.IsTargetedBy)                                    // if something does not target us it's not too interesting
@@ -2649,7 +2649,7 @@ namespace Questor.Modules.Caching
             long preferredTargetId = Cache.Instance.PreferredDroneTarget != null ? Cache.Instance.PreferredDroneTarget.Id : -1;
 
             targets = targets.Where(t => !Cache.Instance.IgnoreTargets.Contains(t.Name) && t.Distance < distance)
-                                                          .Where(t => !Entities.Any(e => e.Id == t.Id && (!e.IsValid || e.HasExploded)))
+                                                          .Where(t => Entities.Any(e => e.Id == t.Id && (e.IsValid && !e.HasExploded)))
                                                           .Where(t => t.Distance < Settings.Instance.DroneControlRange)
                                                           .OrderByDescending(t => (t.IsFrigate || t.IsNPCFrigate) || Settings.Instance.DronesKillHighValueTargets)
                                                           .ThenByDescending(t => t.IsWarpScrambler)                                 // WarpScram over Webs over any other EWAR
@@ -2674,7 +2674,7 @@ namespace Questor.Modules.Caching
         /// <param name="lowValueFirst"></param>
         /// <param name="callingroutine"> </param>
         /// <returns></returns>
-        public bool GetBestTarget(double distance, bool lowValueFirst, string callingroutine, IEnumerable<EntityCache> _potentialTargets = null)
+        public bool SetPreferredTarget(double distance, bool lowValueFirst, string callingroutine, IEnumerable<EntityCache> _potentialTargets = null)
         {
             if (Settings.Instance.DebugGetBestTarget) Logging.Log(callingroutine + " Debug: GetBestTarget", "Attempting to get Best Target", Logging.Teal);
 

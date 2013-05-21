@@ -319,7 +319,7 @@ namespace Questor.Modules.Activities
                 DistanceToClear = (int)Distances.OnGridWithMe;
             }
 
-            if (Cache.Instance.GetBestTarget(DistanceToClear, false, "combat", Cache.Instance.potentialCombatTargets.Where(t => t.IsTargetedBy)))
+            if (Cache.Instance.SetPreferredTarget(DistanceToClear, false, "combat", Cache.Instance.potentialCombatTargets.Where(t => t.IsTargetedBy)))
                 _clearPocketTimeout = null;
 
             // Do we have a timeout?  No, set it to now + 5 seconds
@@ -465,7 +465,7 @@ namespace Questor.Modules.Activities
                 AddPriorityKillTargetsAndMoveIntoRangeAsNeeded(targets, DistanceToClear, targetedby, true);
             }*/
             #endregion
-            if (Cache.Instance.GetBestTarget(DistanceToClear, false, "combat"))
+            if (Cache.Instance.SetPreferredTarget(DistanceToClear, false, "combat"))
                 _clearPocketTimeout = null;
 
             // Do we have a timeout?  No, set it to now + 5 seconds
@@ -498,7 +498,7 @@ namespace Questor.Modules.Activities
             }            
 
             // Target
-            if (Cache.Instance.GetBestTarget(DistanceToClear, false, "combat"))
+            if (Cache.Instance.SetPreferredTarget(DistanceToClear, false, "combat"))
                 _clearPocketTimeout = null;
             
             // Do we have a timeout?  No, set it to now + 5 seconds
@@ -545,7 +545,7 @@ namespace Questor.Modules.Activities
             //
             // the important bit is here... Adds target to the PrimaryWeapon or Drone Priority Target Lists so that they get killed (we basically wait for combat.cs to do that before proceeding)
             //
-            if (Cache.Instance.GetBestTarget(DistanceToClear, false, "combat", Cache.Instance.potentialCombatTargets.Where(t => t.IsTargetedBy)))
+            if (Cache.Instance.SetPreferredTarget(DistanceToClear, false, "combat", Cache.Instance.potentialCombatTargets.Where(t => t.IsTargetedBy)))
                 _clearPocketTimeout = null;
 
             // Do we have a timeout?  No, set it to now + 5 seconds
@@ -893,7 +893,7 @@ namespace Questor.Modules.Activities
             //
             // the important bit is here... Adds target to the PrimaryWeapon or Drone Priority Target Lists so that they get killed (we basically wait for combat.cs to do that before proceeding)
             //
-            if (Cache.Instance.GetBestTarget(DistanceToClear, false, "combat", Cache.Instance.potentialCombatTargets.Where(t => t.IsTargetedBy)))
+            if (Cache.Instance.SetPreferredTarget(DistanceToClear, false, "combat", Cache.Instance.potentialCombatTargets.Where(t => t.IsTargetedBy)))
                 _clearPocketTimeout = null;
 
             // Do we have a timeout?  No, set it to now + 5 seconds
@@ -977,21 +977,14 @@ namespace Questor.Modules.Activities
             if (breakOnAttackers && Cache.Instance.TargetedBy.Count(t => (!t.IsSentry || Settings.Instance.KillSentries) && !Cache.Instance.IgnoreTargets.Contains(t.Name)) > killTargets.Count(e => e.IsTargetedBy))
             {
                 // We are being attacked, break the kill order
-
-                foreach (EntityCache KillTargetEntity in Cache.Instance.Targets.Where(e => targetNames.Contains(e.Name) && (e.IsTarget || e.IsTargeting)))
-                {
-                    Logging.Log("CombatMissionCtrl." + _pocketActions[_currentAction], "Unlocking [" + KillTargetEntity.Name + "][ID: " + Cache.Instance.MaskedID(KillTargetEntity.Id) + "][" + Math.Round(KillTargetEntity.Distance / 1000, 0) + "k away] due to kill order being put on hold", Logging.Teal);
-                    KillTargetEntity.UnlockTarget("CombatMissionCtrl");
-                }
-
                 targetNames.ForEach(t => Cache.Instance.IgnoreTargets.Add(t));
-                Cache.Instance.GetBestTarget((int)Distances.OnGridWithMe, false, "combat");
+                Cache.Instance.SetPreferredTarget((int)Distances.OnGridWithMe, false, "combat");
 
             }
             else
             {
                 Cache.Instance.IgnoreTargets.RemoveWhere(t => targetNames.Contains(t));
-                Cache.Instance.GetBestTarget((int)Distances.OnGridWithMe, false, "combat", killTargets);
+                Cache.Instance.SetPreferredTarget((int)Distances.OnGridWithMe, false, "combat", killTargets);
             }
 
             // Don't use NextAction here, only if target is killed (checked further up)
@@ -1034,7 +1027,7 @@ namespace Questor.Modules.Activities
                 return;
             }
 
-            if (Cache.Instance.GetBestTarget((double)Distances.OnGridWithMe, false, "combat", Cache.Instance.potentialCombatTargets.Where(t => targetNames.Contains(t.Name)).OrderBy(t => t.Distance).Take(1)))
+            if (Cache.Instance.SetPreferredTarget((double)Distances.OnGridWithMe, false, "combat", Cache.Instance.potentialCombatTargets.Where(t => targetNames.Contains(t.Name)).OrderBy(t => t.Distance).Take(1)))
                 _clearPocketTimeout = null;
 
             // Do we have a timeout?  No, set it to now + 5 seconds
@@ -1055,7 +1048,7 @@ namespace Questor.Modules.Activities
         {
             if (Cache.Instance.NormalApproach) Cache.Instance.NormalApproach = false;
 
-            if (Cache.Instance.GetBestTarget((double)Distances.OnGridWithMe, false, "combat", Cache.Instance.potentialCombatTargets.OrderBy(t => t.Distance).Take(1)))
+            if (Cache.Instance.SetPreferredTarget((double)Distances.OnGridWithMe, false, "combat", Cache.Instance.potentialCombatTargets.OrderBy(t => t.Distance).Take(1)))
                 _clearPocketTimeout = null;
 
             // Do we have a timeout?  No, set it to now + 5 seconds
