@@ -2626,7 +2626,8 @@ namespace Questor.Modules.Caching
 
             targets = targets.Where(t => !Cache.Instance.IgnoreTargets.Contains(t.Name) && t.Distance < distance)
                                                   .Where(t => Entities.Any(e => e.Id == t.Id && (e.IsValid && !e.HasExploded)))
-                                                  .OrderByDescending(t => !t.IsFrigate && !t.IsNPCFrigate)                  // Weapons should fire big targets first
+                                                  .OrderByDescending(t => (t.IsFrigate || t.IsNPCFrigate) && !t.IsTooCloseTooFastTooSmallToHit)
+                                                  .ThenByDescending(t => !t.IsFrigate && !t.IsNPCFrigate)                   // Weapons should fire big targets first
                                                   .ThenByDescending(t => !t.IsTooCloseTooFastTooSmallToHit)
                                                   .ThenByDescending(t => t.IsTargetedBy)                                    // if something does not target us it's not too interesting
                                                   .ThenByDescending(t => t.IsWarpScrambler)                                 // WarpScram over Webs over any other EWAR
