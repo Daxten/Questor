@@ -154,6 +154,9 @@ namespace Questor.Modules.Activities
                 target = "Acceleration Gate";
             }
 
+            if (!Settings.Instance.LootOnlyWhatYouCanWithoutSlowingDownMissionCompletion && !Settings.Instance.AfterMissionSalvaging && Cache.Instance.UnlootedContainers.Any())
+                return;
+
             IEnumerable<EntityCache> targets = Cache.Instance.EntitiesByName(target).ToList();
             if (!targets.Any())
             {
