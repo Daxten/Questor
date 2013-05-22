@@ -154,6 +154,7 @@ namespace Questor.Modules.Activities
                 target = "Acceleration Gate";
             }
 
+            // Finish all salvaging if we are savlaging on the run
             if (!Settings.Instance.LootOnlyWhatYouCanWithoutSlowingDownMissionCompletion && !Settings.Instance.AfterMissionSalvaging && Cache.Instance.UnlootedContainers.Any())
                 return;
 
