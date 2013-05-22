@@ -2651,11 +2651,11 @@ namespace Questor.Modules.Caching
             targets = targets.Where(t => !Cache.Instance.IgnoreTargets.Contains(t.Name) && t.Distance < distance)
                                                           .Where(t => Entities.Any(e => e.Id == t.Id && (e.IsValid && !e.HasExploded)))
                                                           .Where(t => t.Distance < Settings.Instance.DroneControlRange)
+                                                          .Where(t => t.IsTargetedBy)
                                                           .OrderByDescending(t => (t.IsFrigate || t.IsNPCFrigate) || Settings.Instance.DronesKillHighValueTargets)
                                                           .ThenByDescending(t => t.IsWarpScrambler)                                 // WarpScram over Webs over any other EWAR
                                                           .ThenByDescending(t => t.IsWebber)
                                                           .ThenByDescending(t => t.IsEwarTarget())                                  // Will return True if the target ever eward us (look at caching changes for ewar)
-                                                          .ThenByDescending(t => t.IsTargetedBy)                                    // if something does not target us it's not too interesting
                                                           .ThenByDescending(t => t.IsTarget)
                                                           .ThenByDescending(t => t.Id == currentDroneTargetId)                      // Keep current target
                                                           .ThenByDescending(t => t.Id == preferredTargetId)                         // Keep the preferred target so we dont switch our targets too often
